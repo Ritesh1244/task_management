@@ -37,29 +37,38 @@ function UpdateTask({ onClose, refreshTasks, currentTask }) {
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         try {
-            // Send PATCH request to update the task
-            const response = await axios.patch(`http://localhost:3000/task/${currentTask._id}`, {
+            const token = localStorage.getItem("token"); // Ensure token is retrieved properly
+    
+            // Convert dueDate from YYYY-MM-DD to DD/MM/YYYY
+            const [year, month, day] = formData.dueDate.split('-');
+            const formattedDueDate = `${day}/${month}/${year}`; // Convert to DD/MM/YYYY
+    
+            const requestBody = {
                 title: formData.title,
                 description: formData.description,
                 priority: formData.priority,
-                dueDate: formData.dueDate,
+                dueDate: formattedDueDate, // Use the formatted date
                 completed: formData.completed === "Yes",
-            }, {
-                headers: { 'authorization': localStorage.getItem('token') }
+            };
+    
+            console.log("Request body for update:", requestBody); // Log the request body
+    
+            const response = await axios.patch(`http://localhost:3000/task/${currentTask._id}`, requestBody, {
+                headers: {
+                    authorization: token, // Send token without 'Bearer' prefix
+                }
             });
-
+    
             console.log("Task updated:", response.data);
-
-            // Refresh the tasks after update
             refreshTasks();
             onClose(); // Close the update form
         } catch (error) {
-            console.error("Error updating task:", error);
+            console.error("Error updating task:", error.response?.data || error.message);
         }
     };
-
+    
     return (
         <div className="overlay">
             <div className="modal">

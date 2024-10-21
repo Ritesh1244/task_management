@@ -19,30 +19,41 @@ function InputData({ onClose, refreshTasks }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        console.log("Form submitted with data:", formData); // Log form data
+    
         const token = localStorage.getItem("token");
+    
+        // Convert the due date from YYYY-MM-DD to DD/MM/YYYY
+        const dueDateParts = formData.dueDate.split('-'); // Split the date string
+        const formattedDueDate = `${dueDateParts[2]}/${dueDateParts[1]}/${dueDateParts[0]}`; // Rearrange to DD/MM/YYYY
+    
         const newTask = {
             title: formData.title,
             description: formData.description,
             priority: formData.priority,
-            dueDate: formData.dueDate,
-            completed: formData.completed === "Yes"
+            dueDate: formattedDueDate, // Use the formatted date
+            completed: formData.completed === "Yes", // Convert to boolean
         };
-
+    
         try {
             const response = await axios.post("http://localhost:3000/task/create", newTask, {
                 headers: {
-                    authorization: token
-                }
+                    authorization: token,
+                },
             });
-
+    
             console.log("Task created:", response.data);
             refreshTasks(); // Refresh tasks after creation
             onClose(); // Close the modal after creation
         } catch (error) {
             console.error("Error creating task:", error);
+            if (error.response) {
+                console.error("Response data:", error.response.data);
+            }
         }
     };
+    
+    
 
     const handleCancel = () => {
         onClose(); // Call the function passed from the parent to close the form

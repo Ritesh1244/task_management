@@ -8,7 +8,7 @@ function Important_Task(){
             <h1>
                  <span className="underline-text">Important Tasks</span>
             </h1>
-            <MainContent home={false} />
+            <MainContent home={false} data ={data}/>
         </div>
 
     )
