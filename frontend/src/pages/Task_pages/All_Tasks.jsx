@@ -1,40 +1,26 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchTasks } from "../../redux/slices/taskSlice"; // Import the fetchTasks action
 import MainContent from "../../Components/MainContent";
 import { IoIosAddCircle } from "react-icons/io";
 import '../../Style/Task/All_task.css'; 
 import InputData from "../../Components/Input_data";
-import UpdateTask from "../../Components/update_data"; // Import the UpdateTask component
-import Completed_task from "./Completed_Task";
+import UpdateTask from "../../Components/update_data"; 
 
 function All_Tasks() {
+    const dispatch = useDispatch();
+    const tasks = useSelector((state) => state.tasks.taskList); // Access tasks from Redux state
+    const taskStatus = useSelector((state) => state.tasks.status);
     const [showAddForm, setShowAddForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
-    const [tasks, setTasks] = useState([]);
     const [taskToUpdate, setTaskToUpdate] = useState(null);
 
-    // Fetch tasks from the server
-    const fetchTasks = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            const response = await axios.get("http://localhost:3000/task/alltasks", {
-                headers: { authorization: token },
-            });
-
-            if (response.data && response.data.tasks) {
-                setTasks(response.data.tasks);
-            } else {
-                console.log("No tasks found");
-            }
-        } catch (error) {
-            console.error("Error fetching tasks:", error);
-        }
-    };
-
-    // Fetch tasks when the component mounts
+    // Fetch tasks from Redux when component mounts
     useEffect(() => {
-        fetchTasks();
-    }, []);
+        if (taskStatus === 'idle') {
+            dispatch(fetchTasks()); // Fetch tasks from the backend
+        }
+    }, [dispatch, taskStatus]);
 
     // Function to open the Add Task form
     const openAddForm = () => {
@@ -56,41 +42,46 @@ function All_Tasks() {
         setTaskToUpdate(null);
     };
 
+    // Debugging logs to check task state
+    console.log("Task Status:", taskStatus);
+    console.log("Tasks:", tasks);
+
     return (
-        <>
-            <div>
-                <div className="all-tasks-container">
-                    <h1>
-                        <span className="underline-text">All Your Tasks</span>
-                    </h1>
-                    <div className="filter-buttons">
-                        <button>Low</button>
-                        <button>Medium</button>
-                        <button>High</button>
-                    </div>
-                    <div className="add-task-container" onClick={openAddForm}>
-                        <IoIosAddCircle />
-                        <span>Add a new Task</span>
-                    </div>
+        <div>
+            <div className="all-tasks-container">
+                <h1><span className="underline-text">All Your Tasks</span></h1>
+                <div className="filter-buttons">
+                    <button>Low</button>
+                    <button>Medium</button>
+                    <button>High</button>
                 </div>
-
-                <MainContent 
-                    home={"true"} 
-                    handleOpenForm={openAddForm} 
-                    handleOpenUpdateForm={openUpdateForm} 
-                    data={tasks} 
-                />
-
-                {showAddForm && <InputData onClose={closeForms} refreshTasks={fetchTasks} />}
-                {showUpdateForm && (
-                    <UpdateTask 
-                        onClose={closeForms} 
-                        refreshTasks={fetchTasks} 
-                        currentTask={taskToUpdate} 
-                    />
-                )}           
+                <div className="add-task-container" onClick={openAddForm}>
+                    <IoIosAddCircle />
+                    <span>Add a new Task</span>
+                </div>
             </div>
-        </>
+
+            {/* Check loading status and error */}
+            {taskStatus === 'loading' && <p>Loading tasks...</p>}
+            {taskStatus === 'failed' && <p>Error fetching tasks. Please try again.</p>}
+
+            {/* Main content displaying tasks */}
+            <MainContent 
+                home={true} 
+                handleOpenForm={openAddForm} 
+                handleOpenUpdateForm={openUpdateForm} 
+                data={tasks} 
+            />
+
+            {/* Conditional rendering of forms */}
+            {showAddForm && <InputData onClose={closeForms} />}
+            {showUpdateForm && (
+                <UpdateTask 
+                    onClose={closeForms} 
+                    currentTask={taskToUpdate} 
+                />
+            )}
+        </div>
     );
 }
 

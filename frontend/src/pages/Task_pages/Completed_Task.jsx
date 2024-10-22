@@ -1,7 +1,7 @@
 import React from "react";
 import MainContent from "../../Components/MainContent";
 
-function Completed_task({ data }) {
+function Completed_task() {
   // Filter out only the completed tasks
   const completedTasks = data?.filter((task) => task.completed);
 

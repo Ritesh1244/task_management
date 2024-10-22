@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { RxCrossCircled } from "react-icons/rx";
-import axios from "axios";
+import { useDispatch } from "react-redux";
+import { updateTask } from '../redux/slices/taskSlice';
+import moment from 'moment'; // Import moment.js
 import './update_data.css';
 
-function UpdateTask({ onClose, refreshTasks, currentTask }) {
+function UpdateTask({ onClose, currentTask }) {
+    const dispatch = useDispatch();
+
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -12,20 +16,18 @@ function UpdateTask({ onClose, refreshTasks, currentTask }) {
         completed: "No"
     });
 
-    // Pre-populate the form with the selected task's data
     useEffect(() => {
         if (currentTask) {
             setFormData({
                 title: currentTask.title,
                 description: currentTask.description,
                 priority: currentTask.priority,
-                dueDate: currentTask.dueDate,
+                dueDate: moment(currentTask.dueDate).format('YYYY-MM-DD'), // Format to YYYY-MM-DD
                 completed: currentTask.completed ? "Yes" : "No"
             });
         }
     }, [currentTask]);
 
-    // Handle form field changes
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevFormData) => ({
@@ -34,41 +36,30 @@ function UpdateTask({ onClose, refreshTasks, currentTask }) {
         }));
     };
 
-    // Handle form submission
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-    
-        try {
-            const token = localStorage.getItem("token"); // Ensure token is retrieved properly
-    
-            // Convert dueDate from YYYY-MM-DD to DD/MM/YYYY
-            const [year, month, day] = formData.dueDate.split('-');
-            const formattedDueDate = `${day}/${month}/${year}`; // Convert to DD/MM/YYYY
-    
-            const requestBody = {
-                title: formData.title,
-                description: formData.description,
-                priority: formData.priority,
-                dueDate: formattedDueDate, // Use the formatted date
-                completed: formData.completed === "Yes",
-            };
-    
-            console.log("Request body for update:", requestBody); // Log the request body
-    
-            const response = await axios.patch(`http://localhost:3000/task/${currentTask._id}`, requestBody, {
-                headers: {
-                    authorization: token, // Send token without 'Bearer' prefix
-                }
+
+        const updates = {
+            title: formData.title,
+            description: formData.description,
+            priority: formData.priority,
+            dueDate: moment(formData.dueDate).format('DD/MM/YYYY'), // Format for backend
+            completed: formData.completed === "Yes",
+        };
+
+        console.log("Submitting update for task:", { taskId: currentTask._id, updates });
+
+        dispatch(updateTask({ taskId: currentTask._id, updates }))
+            .unwrap()
+            .then(() => {
+                console.log("Task updated successfully");
+                onClose();
+            })
+            .catch((error) => {
+                console.error("Failed to update task:", error);
             });
-    
-            console.log("Task updated:", response.data);
-            refreshTasks();
-            onClose(); // Close the update form
-        } catch (error) {
-            console.error("Error updating task:", error.response?.data || error.message);
-        }
     };
-    
+
     return (
         <div className="overlay">
             <div className="modal">
@@ -80,7 +71,7 @@ function UpdateTask({ onClose, refreshTasks, currentTask }) {
 
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
-                        <label htmlFor="title">Title</label> 
+                            <label htmlFor="title">Title</label>
                             <input
                                 type="text"
                                 name="title"
@@ -92,7 +83,7 @@ function UpdateTask({ onClose, refreshTasks, currentTask }) {
                         </div>
 
                         <div className="form-group">
-                        <label htmlFor="description">Description</label>
+                            <label htmlFor="description">Description</label>
                             <textarea
                                 name="description"
                                 className="input-description"
@@ -103,7 +94,7 @@ function UpdateTask({ onClose, refreshTasks, currentTask }) {
                         </div>
 
                         <div className="form-group">
-                        <label htmlFor="priority">Select Priority</label>
+                            <label htmlFor="dueDate">Due Date</label>
                             <input
                                 type="date"
                                 name="dueDate"
@@ -114,8 +105,7 @@ function UpdateTask({ onClose, refreshTasks, currentTask }) {
                         </div>
 
                         <div className="form-group">
-                        <label htmlFor="dueDate">Due Date</label>
-
+                            <label htmlFor="priority">Select Priority</label>
                             <select
                                 name="priority"
                                 className="input-priority"
@@ -129,7 +119,7 @@ function UpdateTask({ onClose, refreshTasks, currentTask }) {
                         </div>
 
                         <div className="form-group">
-                        <label htmlFor="completed">Task Status</label>
+                            <label htmlFor="completed">Task Status</label>
                             <select
                                 name="completed"
                                 className="input-completed"
@@ -142,12 +132,8 @@ function UpdateTask({ onClose, refreshTasks, currentTask }) {
                         </div>
 
                         <div className="form-actions">
-                            <button type="submit" className="btn-submit">
-                                Update Task
-                            </button>
-                            <button type="button" className="btn-cancel" onClick={onClose}>
-                                Cancel
-                            </button>
+                            <button type="submit" className="btn-submit">Update Task</button>
+                            <button type="button" className="btn-cancel" onClick={onClose}>Cancel</button>
                         </div>
                     </form>
                 </div>

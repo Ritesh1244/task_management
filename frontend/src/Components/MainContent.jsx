@@ -1,90 +1,31 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleImportant, toggleCompletion, deleteTask, fetchTasks } from '../redux/slices/taskSlice';
 import { FaHeart, FaRegHeart, FaEdit } from "react-icons/fa";
 import { MdDeleteSweep } from "react-icons/md";
 import { IoIosAddCircle } from "react-icons/io";
 import './MainContent.css';
-import axios from "axios";
 
-function MainContent({ home, handleOpenForm, handleOpenUpdateForm, data }) {
-    const [taskList, setTaskList] = useState(data);
+function MainContent({ home, handleOpenForm, handleOpenUpdateForm }) {
+    const dispatch = useDispatch();
+    const taskList = useSelector((state) => state.tasks.taskList);
 
     useEffect(() => {
-        setTaskList(data);
-    }, [data]);
+        dispatch(fetchTasks()); // Fetch tasks when component mounts
+    }, [dispatch]);
 
-// Toggle task importance
-const toggleImportant = async (task) => {
-    const updatedImportantStatus = !task.important;
-
-    // Optimistically update local state
-    const updatedTaskList = taskList.map(t => 
-        t._id === task._id ? { ...t, important: updatedImportantStatus } : t
-    );
-    setTaskList(updatedTaskList);
-
-    try {
-        // Update the server
-        await axios.patch(`http://localhost:3000/task/${task._id}`, {
-            important: updatedImportantStatus,
-        }, {
-            headers: { 'authorization': localStorage.getItem('token') }
-        });
-    } catch (error) {
-        console.error("Error updating task importance:", error);
-        // Revert the state change in case of an error
-        setTaskList(prevList => prevList.map(t => 
-            t._id === task._id ? { ...t, important: !updatedImportantStatus } : t
-        )); 
-    }
-};
-
-
-
-
-    // Toggle task completion status
-    const toggleTaskCompletion = async (task) => {
-        const updatedCompletionStatus = !task.completed;
-    
-        // Optimistically update local state
-        const updatedTaskList = taskList.map(t => 
-            t._id === task._id ? { ...t, completed: updatedCompletionStatus } : t
-        );
-        setTaskList(updatedTaskList);  // Update local state immediately
-    
-        try {
-            // Update the server
-            await axios.patch(`http://localhost:3000/task/${task._id}`, {
-                completed: updatedCompletionStatus,
-            }, {
-                headers: { 'authorization': localStorage.getItem('token') }
-            });
-        } catch (error) {
-            console.error("Error updating task:", error);
-    
-            // Revert only if an error occurs, without unnecessarily toggling
-            const revertedTaskList = taskList.map(t => 
-                t._id === task._id ? { ...t, completed: task.completed } : t
-            );
-            setTaskList(revertedTaskList); // Reset to the original state before toggle
-        }
+    const toggleTaskImportance = (task) => {
+        dispatch(toggleImportant(task._id)); // Dispatch Redux action
     };
-    
-    
-    // Delete a task
-    const deleteTask = async (taskId) => {
-        try {
-            await axios.delete(`http://localhost:3000/task/${taskId}`, {
-                headers: { 'authorization': localStorage.getItem('token') }
-            });
-    
-            // Remove the task from local state after successful deletion
-            setTaskList(taskList.filter(task => task._id !== taskId));
-        } catch (error) {
-            console.error("Error deleting task:", error);
-        }
+
+    const toggleTaskCompletion = (task) => {
+        dispatch(toggleCompletion(task._id)); // Dispatch Redux action
     };
-    
-    // Function to calculate the due date relative to the current date
+
+    const deleteTaskItem = (taskId) => {
+        dispatch(deleteTask(taskId)); // Dispatch Redux action
+    };
+
     const calculateDueDate = (dueDate) => {
         const due = new Date(dueDate);
         const now = new Date();
@@ -120,9 +61,10 @@ const toggleImportant = async (task) => {
                                 {task.completed ? "Completed" : "Incomplete"}
                             </button>
 
+                            {/* Displaying the calculated due date */}
                             <p>{calculateDueDate(task.dueDate)}</p>
                             <div className="task-action">
-                                <button onClick={() => toggleImportant(task)} className="icon-button">
+                                <button onClick={() => toggleTaskImportance(task)} className="icon-button">
                                     {task.important ? (
                                         <FaHeart className="icon filled" style={{ color: "red" }} />
                                     ) : (
@@ -132,7 +74,7 @@ const toggleImportant = async (task) => {
                                 <button className="icon-button" onClick={() => handleOpenUpdateForm(task)}>
                                     <FaEdit />
                                 </button>
-                                <button className="icon-button" onClick={() => deleteTask(task._id)}>
+                                <button className="icon-button" onClick={() => deleteTaskItem(task._id)}>
                                     <MdDeleteSweep className="delete-icon" />
                                 </button>
                             </div>

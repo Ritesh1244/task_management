@@ -88,8 +88,6 @@ const singleTask = asyncHandler(async (req, res) => {
 });
 
 // Update task
-
-// Update task
 const updateTask = asyncHandler(async (req, res) => {
     try {
         const { id } = req.params;

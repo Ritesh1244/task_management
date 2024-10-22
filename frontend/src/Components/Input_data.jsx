@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { RxCrossCircled } from "react-icons/rx";
-import axios from "axios";
+import { useDispatch } from "react-redux";
+import { createTask } from '../redux/slices/taskSlice'
 import './Input_data.css';
 
-function InputData({ onClose, refreshTasks }) {
+function InputData({ onClose }) {
+    const dispatch = useDispatch();
+
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -21,42 +24,20 @@ function InputData({ onClose, refreshTasks }) {
         e.preventDefault();
         console.log("Form submitted with data:", formData); // Log form data
     
-        const token = localStorage.getItem("token");
-    
         // Convert the due date from YYYY-MM-DD to DD/MM/YYYY
-        const dueDateParts = formData.dueDate.split('-'); // Split the date string
-        const formattedDueDate = `${dueDateParts[2]}/${dueDateParts[1]}/${dueDateParts[0]}`; // Rearrange to DD/MM/YYYY
+        const dueDateParts = formData.dueDate.split('-');
+        const formattedDueDate = `${dueDateParts[2]}/${dueDateParts[1]}/${dueDateParts[0]}`;
     
         const newTask = {
             title: formData.title,
             description: formData.description,
             priority: formData.priority,
-            dueDate: formattedDueDate, // Use the formatted date
-            completed: formData.completed === "Yes", // Convert to boolean
+            dueDate: formattedDueDate,
+            completed: formData.completed === "Yes",
         };
     
-        try {
-            const response = await axios.post("http://localhost:3000/task/create", newTask, {
-                headers: {
-                    authorization: token,
-                },
-            });
-    
-            console.log("Task created:", response.data);
-            refreshTasks(); // Refresh tasks after creation
-            onClose(); // Close the modal after creation
-        } catch (error) {
-            console.error("Error creating task:", error);
-            if (error.response) {
-                console.error("Response data:", error.response.data);
-            }
-        }
-    };
-    
-    
-
-    const handleCancel = () => {
-        onClose(); // Call the function passed from the parent to close the form
+        dispatch(createTask(newTask)); // Dispatch the action to create a new task
+        onClose(); // Close the modal after creation
     };
 
     return (
@@ -68,7 +49,7 @@ function InputData({ onClose, refreshTasks }) {
                         <RxCrossCircled 
                             className="cross-icon" 
                             style={{ float: 'right', cursor: 'pointer', fontSize: '24px' }} 
-                            onClick={handleCancel} 
+                            onClick={onClose} 
                         />
                     </div>
                     <form onSubmit={handleSubmit}>
@@ -133,7 +114,7 @@ function InputData({ onClose, refreshTasks }) {
                         </div>
                         <div className="form-actions">
                             <button type="submit" className="btn-submit">Create Task</button>
-                            <button type="button" className="btn-cancel" onClick={handleCancel}>Cancel</button>
+                            <button type="button" className="btn-cancel" onClick={onClose}>Cancel</button>
                         </div>
                     </form>
                 </div>

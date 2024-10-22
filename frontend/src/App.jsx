@@ -11,7 +11,7 @@ import Important_Task from './pages/Task_pages/Important_Task';
 import Overdue_task from './pages/Task_pages/Overdue_task';
 import Pending_task from './pages/Task_pages/Pending_task';
 import Upcoming_Task from './pages/Task_pages/Upcoming_Task';
-import { RecoilRoot } from 'recoil';  // Import RecoilRoot
+
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -22,7 +22,7 @@ function App() {
   };
 
   return (
-    <RecoilRoot>  {/* Wrapping everything with RecoilRoot */}
+  
       <div className="App">
         <RefrshHandler setIsAuthenticated={setIsAuthenticated} />
         <Routes>
@@ -40,7 +40,7 @@ function App() {
           </Route>
         </Routes>
       </div>
-    </RecoilRoot> 
+
   );
 }
 

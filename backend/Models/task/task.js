@@ -12,7 +12,7 @@ const TaskSchema = new Schema({
     },
     dueDate: {
         type: Date,
-        required: true, // Ensure the due date is explicitly provided by the user
+        required: true, 
     },
     status: {
         type: String,
