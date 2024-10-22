@@ -1,30 +1,58 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ImportantTask } from "../../redux/slices/taskSlice"; // Import the important task thunk
+import { ImportantTask } from "../../redux/slices/taskSlice";
 import MainContent from "../../Components/MainContent";
+import UpdateTask from "../../Components/update_data"; // Import UpdateTask component
+import '../../Style/Task/All_task.css'; // Import the same CSS file
 
 function Important_Task() {
     const dispatch = useDispatch();
+    const importantTasks = useSelector((state) => state.tasks.importantTasks); // Get important tasks from Redux
 
-    // Fetch important tasks from Redux state
-    const importantTasks = useSelector((state) => state.tasks.importantTasks); // Change this line
+    // State for showing/hiding the update form and the task to be updated
+    const [showUpdateForm, setShowUpdateForm] = useState(false);
+    const [taskToUpdate, setTaskToUpdate] = useState(null);
 
-    // Fetch important tasks on component mount
+    // Fetch important tasks when the component mounts
     useEffect(() => {
-        dispatch(ImportantTask()); // Dispatch the thunk to fetch important tasks
+        dispatch(ImportantTask());
     }, [dispatch]);
+
+    // Function to open the Update Task form
+    const openUpdateForm = (task) => {
+        setTaskToUpdate(task); // Set the task to update
+        setShowUpdateForm(true); // Show the update form
+    };
+
+    // Function to close the update form
+    const closeForm = () => {
+        setShowUpdateForm(false); // Hide the form
+        setTaskToUpdate(null); // Reset the task being updated
+    };
 
     return (
         <div>
-            <h1>
-                <span className="underline-text">Important Tasks</span>
-            </h1>
+            <div className="all-tasks-container">
+                <h1>
+                    <span className="underline-text">Important Tasks</span>
+                </h1>
+            </div>
 
-            {/* Render MainContent and pass important tasks data */}
-            {importantTasks.length > 0 ? (
-                <MainContent home={false} data={importantTasks} />
+            {/* If a task is selected for updating, show the UpdateTask form */}
+            {showUpdateForm ? (
+                <UpdateTask onClose={closeForm} currentTask={taskToUpdate} />
             ) : (
-                <p>No important tasks to show</p>
+                <>
+                    {importantTasks.length > 0 ? (
+                        <MainContent
+                            home={false}
+                            data={importantTasks}
+                            handleOpenUpdateForm={openUpdateForm} // Pass the function to MainContent
+                        />
+                    ) : (
+                        <p>No important tasks to show</p>
+                    )}
+                </>
             )}
         </div>
     );

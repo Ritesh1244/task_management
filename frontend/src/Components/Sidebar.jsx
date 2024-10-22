@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from 'axios'; 
 import { useNavigate } from "react-router-dom";
 import { TbNotes } from "react-icons/tb";
-import { FaTasks, FaCheckCircle, FaCalendarAlt, FaExclamationCircle, FaTimesCircle } from "react-icons/fa";
+import { FaTasks, FaCheckCircle, FaCalendarAlt, FaExclamationCircle } from "react-icons/fa";
+import { IoMdToday } from "react-icons/io";
+
 import './sidebar.css';
 
 function Sidebar() {
@@ -15,7 +17,7 @@ function Sidebar() {
         { title: "Completed Tasks", icon: <FaCheckCircle />, link: "/home/completed-tasks" },
         { title: "Upcoming Tasks", icon: <FaCalendarAlt />, link: "/home/upcoming-tasks" },
         { title: "Pending Tasks", icon: <FaExclamationCircle />, link: "/home/pending-tasks" },
-        { title: "Today Task", icon: <FaTimesCircle />, link: "/home/today" }
+        { title: "Today Task", icon: <IoMdToday />, link: "/home/today" }
     ];
 
     useEffect(() => {

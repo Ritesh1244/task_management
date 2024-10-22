@@ -1,23 +1,23 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Helper function to retrieve the token
+
 const getToken = () => localStorage.getItem("token");
 
-// Async thunk to fetch all tasks
+
 export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async () => {
     const response = await axios.get('http://localhost:3000/task/alltasks', {
         headers: { authorization: getToken() },
     });
-    return response.data.tasks; // Return the array of tasks
+    return response.data.tasks; 
 });
 
-// Async thunk to fetch important tasks
+
 export const ImportantTask = createAsyncThunk('tasks/fetchImportantTasks', async () => {
     const response = await axios.get('http://localhost:3000/task/important', {
         headers: { authorization: getToken() },
     });
-    return response.data.tasks; // Return the array of important tasks
+    return response.data.tasks; 
 });
 
 // Async thunk to create a new task
@@ -25,17 +25,17 @@ export const createTask = createAsyncThunk('tasks/createTask', async (taskData, 
     const response = await axios.post('http://localhost:3000/task/create', taskData, {
         headers: { authorization: getToken() },
     });
-    dispatch(fetchTasks()); // Refetch tasks after creation
-    return response.data; // Return the created task
+    dispatch(fetchTasks()); 
+    return response.data; 
 });
 
-// Async thunk to update an existing task
+
 export const updateTask = createAsyncThunk('tasks/updateTask', async ({ taskId, updates }, { rejectWithValue }) => {
     try {
         const response = await axios.patch(`http://localhost:3000/task/${taskId}`, updates, {
             headers: { authorization: getToken() },
         });
-        return response.data; // Return the updated task data
+        return response.data; 
     } catch (error) {
         return rejectWithValue(error.response.data); // Handle error and return it
     }
@@ -119,5 +119,5 @@ const taskSlice = createSlice({
     },
 });
 
-// Export the reducer to be used in the store
+
 export default taskSlice.reducer;

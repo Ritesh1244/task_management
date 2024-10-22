@@ -49,9 +49,9 @@ function All_Tasks() {
             <div className="all-tasks-container">
                 <h1><span className="underline-text">All Your Tasks</span></h1>
                 <div className="filter-buttons">
-                    <button>Low</button>
+                    {/* <button>Low</button>
                     <button>Medium</button>
-                    <button>High</button>
+                    <button>High</button> */}
                 </div>
                 <div className="add-task-container" onClick={openAddForm}>
                     <IoIosAddCircle />
@@ -65,7 +65,7 @@ function All_Tasks() {
 
             {/* Main content displaying tasks */}
             <MainContent 
-                home={true} 
+                home={'true'} 
                 handleOpenForm={openAddForm} 
                 handleOpenUpdateForm={openUpdateForm} 
                 data={tasks} 

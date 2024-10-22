@@ -1,32 +1,50 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import MainContent from "../../Components/MainContent";
+import UpdateTask from "../../Components/update_data";
+import '../../Style/Task/All_task.css'; // Import the same CSS file
 
 function Pending_Task() {
-    // Fetch tasks from Redux
     const tasks = useSelector((state) => state.tasks.taskList);
+    const [showUpdateForm, setShowUpdateForm] = useState(false); // For showing/hiding update form
+    const [taskToUpdate, setTaskToUpdate] = useState(null); // To hold the task being edited
 
-    // Function to filter pending tasks
-    const getPendingTasks = () => {
-        const now = new Date();
-        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()); 
-        return tasks.filter((task) => {
-            const dueDate = new Date(task.dueDate);
-            return dueDate < startOfToday; 
-        });
+    const pendingTasks = tasks.filter((task) => task.completed === false);
+
+    // Function to open the Update Task form
+    const openUpdateForm = (task) => {
+        setTaskToUpdate(task); 
+        setShowUpdateForm(true); 
     };
 
-    const pendingTasks = getPendingTasks(); // Get the filtered pending tasks
+    // Function to close the form
+    const closeForm = () => {
+        setShowUpdateForm(false); // Hide the update form
+        setTaskToUpdate(null); // Clear the selected task
+    };
 
     return (
         <div>
-            <h1>
-                <span className="underline-text">Pending Tasks</span>
-            </h1>
-            {pendingTasks.length > 0 ? (
-                <MainContent home={false} data={pendingTasks} /> 
+            <div className="all-tasks-container">
+                <h1>
+                    <span className="underline-text">Pending Tasks</span>
+                </h1>
+            </div>
+
+            {showUpdateForm ? (
+                <UpdateTask onClose={closeForm} currentTask={taskToUpdate} />
             ) : (
-                <p>No pending tasks to show</p>
+                <>
+                    {pendingTasks.length > 0 ? (
+                        <MainContent
+                            home={false}
+                            data={pendingTasks}
+                            handleOpenUpdateForm={openUpdateForm} 
+                        />
+                    ) : (
+                        <p>No pending tasks to show</p>
+                    )}
+                </>
             )}
         </div>
     );
