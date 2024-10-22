@@ -15,7 +15,7 @@ function Sidebar() {
         { title: "Completed Tasks", icon: <FaCheckCircle />, link: "/home/completed-tasks" },
         { title: "Upcoming Tasks", icon: <FaCalendarAlt />, link: "/home/upcoming-tasks" },
         { title: "Pending Tasks", icon: <FaExclamationCircle />, link: "/home/pending-tasks" },
-        { title: "Overdue", icon: <FaTimesCircle />, link: "/home/overdue" }
+        { title: "Today Task", icon: <FaTimesCircle />, link: "/home/today" }
     ];
 
     useEffect(() => {

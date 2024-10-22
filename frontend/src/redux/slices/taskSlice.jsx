@@ -4,12 +4,20 @@ import axios from 'axios';
 // Helper function to retrieve the token
 const getToken = () => localStorage.getItem("token");
 
-// Async thunk to fetch tasks
+// Async thunk to fetch all tasks
 export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async () => {
     const response = await axios.get('http://localhost:3000/task/alltasks', {
         headers: { authorization: getToken() },
     });
     return response.data.tasks; // Return the array of tasks
+});
+
+// Async thunk to fetch important tasks
+export const ImportantTask = createAsyncThunk('tasks/fetchImportantTasks', async () => {
+    const response = await axios.get('http://localhost:3000/task/important', {
+        headers: { authorization: getToken() },
+    });
+    return response.data.tasks; // Return the array of important tasks
 });
 
 // Async thunk to create a new task
@@ -66,11 +74,13 @@ const taskSlice = createSlice({
     name: 'tasks',
     initialState: {
         taskList: [],
+        importantTasks: [], // Separate state for important tasks
         status: 'idle', // idle | loading | succeeded | failed
         error: null,
     },
     extraReducers: (builder) => {
         builder
+            // Fetch all tasks
             .addCase(fetchTasks.pending, (state) => {
                 state.status = 'loading'; // Set loading status
             })
@@ -82,6 +92,19 @@ const taskSlice = createSlice({
                 state.status = 'failed'; // Set failed status
                 state.error = action.error.message; // Capture error message
             })
+            // Fetch important tasks
+            .addCase(ImportantTask.pending, (state) => {
+                state.status = 'loading'; // Set loading status
+            })
+            .addCase(ImportantTask.fulfilled, (state, action) => {
+                state.importantTasks = action.payload; // Update important tasks
+                state.status = 'succeeded'; // Set succeeded status
+            })
+            .addCase(ImportantTask.rejected, (state, action) => {
+                state.status = 'failed'; // Set failed status
+                state.error = action.error.message; // Capture error message
+            })
+            // Update an existing task
             .addCase(updateTask.fulfilled, (state, action) => {
                 const updatedTask = action.payload; // Get updated task
                 const taskIndex = state.taskList.findIndex(task => task._id === updatedTask._id);
@@ -89,9 +112,9 @@ const taskSlice = createSlice({
                     state.taskList[taskIndex] = updatedTask; // Update the task in the state
                 }
             })
+            // Delete a task (handled through refetch)
             .addCase(deleteTask.fulfilled, (state, action) => {
-                // Handle removal of the task from the state if necessary
-                // Note: We refetch tasks, so this might be optional
+                // Refetch will handle state update
             });
     },
 });

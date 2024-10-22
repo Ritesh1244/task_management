@@ -42,9 +42,7 @@ function All_Tasks() {
         setTaskToUpdate(null);
     };
 
-    // Debugging logs to check task state
-    console.log("Task Status:", taskStatus);
-    console.log("Tasks:", tasks);
+    
 
     return (
         <div>

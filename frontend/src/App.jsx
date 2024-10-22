@@ -8,7 +8,7 @@ import RefrshHandler from './RefrshHandler';
 import All_Tasks from './pages/Task_pages/All_Tasks';
 import Completed_Task from './pages/Task_pages/Completed_Task';
 import Important_Task from './pages/Task_pages/Important_Task';
-import Overdue_task from './pages/Task_pages/Overdue_task';
+import Today_Task from './pages/Task_pages/Today_task';
 import Pending_task from './pages/Task_pages/Pending_task';
 import Upcoming_Task from './pages/Task_pages/Upcoming_Task';
 
@@ -36,7 +36,7 @@ function App() {
             <Route path="completed-tasks" element={<Completed_Task />} />
             <Route path="upcoming-tasks" element={<Upcoming_Task />} />
             <Route path="pending-tasks" element={<Pending_task />} />
-            <Route path="overdue" element={<Overdue_task />} />
+            <Route path="today" element={<Today_Task />} />
           </Route>
         </Routes>
       </div>

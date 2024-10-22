@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleImportant, toggleCompletion, deleteTask, fetchTasks } from '../redux/slices/taskSlice';
 import { FaHeart, FaRegHeart, FaEdit } from "react-icons/fa";
@@ -6,13 +6,11 @@ import { MdDeleteSweep } from "react-icons/md";
 import { IoIosAddCircle } from "react-icons/io";
 import './MainContent.css';
 
-function MainContent({ home, handleOpenForm, handleOpenUpdateForm }) {
+function MainContent({ home, handleOpenForm, handleOpenUpdateForm, data }) {
     const dispatch = useDispatch();
-    const taskList = useSelector((state) => state.tasks.taskList);
 
-    useEffect(() => {
-        dispatch(fetchTasks()); // Fetch tasks when component mounts
-    }, [dispatch]);
+
+    const tasksToRender = data 
 
     const toggleTaskImportance = (task) => {
         dispatch(toggleImportant(task._id)); // Dispatch Redux action
@@ -45,8 +43,8 @@ function MainContent({ home, handleOpenForm, handleOpenUpdateForm }) {
 
     return (
         <div className="main-content">
-            {taskList.length > 0 ? (
-                taskList.map((task) => (
+            {tasksToRender.length > 0 ? (
+                tasksToRender.map((task) => (
                     <div className="task-item" key={task._id}>
                         <h3>{task.title}</h3>
                         <p>{task.description}</p>
