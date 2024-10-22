@@ -79,7 +79,6 @@ function All_Tasks() {
                     handleOpenForm={openAddForm} 
                     handleOpenUpdateForm={openUpdateForm} 
                     data={tasks} 
-                    fetchTasks={fetchTasks} 
                 />
 
                 {showAddForm && <InputData onClose={closeForms} refreshTasks={fetchTasks} />}
